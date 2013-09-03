@@ -6,7 +6,6 @@
 ===================
 　
     twitter的scala-bootstraper是用来生成基于sbt构建的项目骨架的工具(gem)
----------------------------
 
 ### 使用中有一些问题：
 
@@ -39,4 +38,3 @@
 3 根据以上改动我fork了一个版本：[Forked scala-bootstrapper](https://github.com/fenfenxu/scala-bootstrapper)
 
 
-{{ page.date | date_to_string }}

@@ -7,12 +7,11 @@
 
 ### 命令：
 
+
     // tcpdump 并 nc到端口12345
     $ adb shell "tcpdump -n -i any -s 0 -w - | nc -l -p 12345"
     //执行端口转发，将主机tcp端口54321和模拟器端口12345进行转发，并通过nc将54321这个端口的数据导入wireshark中
     $ adb forward tcp:54321 tcp:12345  && nc 127.0.0.1 54321 | wireshark -k -S -i -
-
- 
 
 ### 其中，
 
@@ -23,7 +22,7 @@ tcpdump和nc在emulator里面都已经存在于/system/xbin/目录下面
 #### 关于设备抓包一点说明：
 
 需要adb shell到设备上，然后su到root权限，执行
-    
+   
     $ tcpdump -n -s 0 -w - | nc -l -p 12345
 
 
@@ -40,6 +39,3 @@ tcpdump和nc在emulator里面都已经存在于/system/xbin/目录下面
 
 [引自](http://mobile.tutsplus.com/tutorials/android/analyzing-android-network-traffic/)
 
-
-
-{{ page.date | date_to_string }}
