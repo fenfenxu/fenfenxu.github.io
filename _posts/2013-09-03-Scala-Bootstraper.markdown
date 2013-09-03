@@ -29,8 +29,6 @@
      resolvers <<= DefaultRepos.defaultResolvers
 
 
-
-
 2 另，插件sbt11-scrooge是用来生成thrift java。其在使用时会先去 “http://maven.twttr.com/” 加载一个文件.
 
 可以设置环境变量：// 见[plugin:sbt-scrooge](https://github.com/twitter/sbt-scrooge/blob/master/src/main/scala/com/twitter/sbt/CompileScrooge.scala)
@@ -41,6 +39,4 @@
 3 根据以上改动我fork了一个版本：[Forked scala-bootstrapper](https://github.com/fenfenxu/scala-bootstrapper)
 
 
-----
 {{ page.date | date_to_string }}
----------
