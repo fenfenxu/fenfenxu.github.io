@@ -1,0 +1,158 @@
+---     
+  layout: post
+  title:  BASE64 
+---
+{{ page.title }}
+===================
+
+###BASE64
+
+
+    STANDARD_ENCODE_TABLE = {
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+                'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+        };
+
+
+        DECODE_TABLE = Array(
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, 62, -1, 63, 52, 53, 54,
+                55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4,
+                5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                24, 25, -1, -1, -1, -1, 63, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34,
+                35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+        );
+
+
+
+
+### encode
+
+
+<table>
+    <tbody><tr>
+<th scope="row">文本</th>
+<td colspan="8" align="center"><b>M</b></td>
+<td colspan="8" align="center"><b>a</b></td>
+<td colspan="8" align="center"><b>n</b></td>
+</tr>
+<tr>
+<th scope="row">ASCII编码</th>
+<td colspan="8" align="center">77</td>
+<td colspan="8" align="center">97</td>
+<td colspan="8" align="center">110</td>
+</tr>
+<tr>
+<th scope="row">二进制位</th>
+
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<th scope="row">索引</th>
+<td colspan="6" align="center">19</td>
+<td colspan="6" align="center">22</td>
+<td colspan="6" align="center">5</td>
+<td colspan="6" align="center">46</td>
+</tr>
+<tr>
+<th scope="row">Base64编码</th>
+<td colspan="6" align="center"><b>T</b></td>
+<td colspan="6" align="center"><b>W</b></td>
+<td colspan="6" align="center"><b>F</b></td>
+<td colspan="6" align="center"><b>u</b></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+    - M a n=============(ASCII)==>
+    - 77 97 110=========(cut every 6 bit)==>
+    - 19 22 5 46========(STANDARD_ENCODE_TABLE映射)==>
+    - T W   F   u    
+
+### decode                              
+
+
+<table>
+    <tbody>
+        <tr>
+        <th scope="row">Base64编码</th>
+        <td colspan="6" align="center"><b>T</b></td>
+        <td colspan="6" align="center"><b>W</b></td>
+        <td colspan="6" align="center"><b>F</b></td>
+        <td colspan="6" align="center"><b>u</b></td>
+        </tr>
+
+        <tr>
+        <th scope="row">索引</th>
+        <td colspan="6" align="center">19</td>
+        <td colspan="6" align="center">22</td>
+        <td colspan="6" align="center">5</td>
+        <td colspan="6" align="center">46</td>
+        </tr>
+
+        <tr>
+        <th scope="row">值</th>
+        <td colspan="6" align="center">5071214</td>
+        </tr>
+
+
+        <tr>
+        <th scope="row">ASCII编码</th>
+        <td colspan="8" align="center">77</td>
+        <td colspan="8" align="center">97</td>
+        <td colspan="8" align="center">110</td>
+        </tr>
+
+        <tr>
+        <th scope="row">文本</th>
+        <td colspan="8" align="center"><b>M</b></td>
+        <td colspan="8" align="center"><b>a</b></td>
+        <td colspan="8" align="center"><b>n</b></td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+    - T W F u==========(DECODE_TABLE映射)==>
+    - 19 22 5 46========(移位组合 ( 19 << 18)  + (22 << 12)  + (5 << 6) + 46 )==>
+    - 5071214=========(8位截取 (5071214 & 0xff0000) >> 16, (5071214 & 0x00ff00) >> 8, (5071214 & 0x0000ff))==>
+    - 77 97 110========(ASCII)==>
+    - M a n
+
+
+
+
+
