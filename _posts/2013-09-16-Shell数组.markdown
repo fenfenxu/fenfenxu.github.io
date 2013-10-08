@@ -1,0 +1,28 @@
+---     
+  layout: post
+  title:  Shell数组
+---
+{{ page.title }}
+===================
+
+###bash数组：
+
+在bash中存在数组，其他的不保证，以下都在bash中测试过： 
+
+    arr=(abc 123 ABC def)
+    echo $arr                        #abc
+    echo ${arr}                     #abc
+    echo ${arr[@]}               #abc 123 ABC def
+    echo ${#arr[@]}             #3
+    echo ${arr[1]}                 #123
+    echo ${arr:1}                  #123 ABC def
+    echo ${arr:1:2}               #123 ABC
+
+    fun () {
+
+        local -a arr=($@)
+        echo ${arr[@]}
+    }
+
+    echo $(fun ${arr[@]})                 #abc 123 ABC def
+
