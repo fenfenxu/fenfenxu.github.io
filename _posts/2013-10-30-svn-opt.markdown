@@ -1,0 +1,29 @@
+---     
+  layout: post
+  title: svn operation
+---
+{{ page.title }}
+===================
+## svn ps svn:ignore
+
+获取当前目录下的所有子目录的svn:ignore
+```
+  svn -R pg svn:ignore .
+```
+
+设置当前目录下的所有子目录的svn:ignore为.svnignore文件
+```
+  svn -R ps svn:ignore -F .svnignore .
+```
+OR
+```
+  svn ps --depth infinity svn:ignore  -F svnignore  .
+```
+只设置当前目录及子目录
+```
+svn ps --depth immediates svn:ignore  -F svnignore  .
+```
+设置多个目录的svn:ignore
+```
+svn ps svn:ignore -F svnignore dir1 dir2
+```
