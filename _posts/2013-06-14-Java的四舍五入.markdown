@@ -96,16 +96,3 @@ HALF_EVEN：银行家算法，四舍六入五考虑，五后非零就进一，�
 根据不同的场景，慎重选择不同的舍入模式，以提高项目的精准度，减少算法损失。在大量与货币数字交互的项目中，一定要选择好近似的计算模式，尽量减少因算法不同而造成的损失。
 
 [Reference](http://blog.csdn.net/p106786860/article/details/9377471)
-
-<script type="text/javascript">
-(function(){
-var url = "http://widget.weibo.com/distribution/comments.php?width=0&url=http%3A%2F%2Fopen.weibo.com%2Fwidget%2Fcomments.php&appkey=1016626664&dpc=1";
-document.write('<iframe id="WBCommentFrame" src="' + url + '" scrolling="no" frameborder="0" style="width:100%"></iframe>');
-})();
-</script>
-<script src="http://tjs.sjs.sinajs.cn/open/widget/js/widget/comment.js" type="text/javascript" charset="utf-8"></script>
-<script type="text/javascript">
-window.WBComment.init({
-    "id": "WBCommentFrame"
-});
-</script>
