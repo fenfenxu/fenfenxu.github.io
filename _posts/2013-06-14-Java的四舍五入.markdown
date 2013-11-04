@@ -2,8 +2,6 @@
   layout: post
   title: Java的四舍五入
 ---
-{{ page.title }}
-===================
 
 #### 一、分析 
 

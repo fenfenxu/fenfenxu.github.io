@@ -2,8 +2,6 @@
   layout: post
   title: Remote webview inspector
 ---
-{{ page.title }}
-===================
 
 #### weinre
 

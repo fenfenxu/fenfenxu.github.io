@@ -2,8 +2,7 @@
   layout: post
   title: Scala-Bootstraper
 ---
-{{ page.title }}
-===================
+
 　
     twitter的scala-bootstraper是用来生成基于sbt构建的项目骨架的工具(gem)
 

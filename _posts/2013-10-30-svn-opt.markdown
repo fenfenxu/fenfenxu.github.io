@@ -2,9 +2,6 @@
   layout: post
   title: svn operation
 ---
-{{ page.title }}
-===================
-
 
 ## svn ps svn:ignore
 

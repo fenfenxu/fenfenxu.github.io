@@ -2,8 +2,6 @@
   layout: post
   title: 通过tunnel，jconsole连接远端服务器
 ---
-{{ page.title }}
-===================
 
 
 ### 通过tunnel，jconsole连接远端服务器

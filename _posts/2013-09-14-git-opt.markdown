@@ -2,8 +2,6 @@
   layout: post
   title: Git operation
 ---
-{{ page.title }}
-===================
 
 1. git log -- PATH    //显示PATH下的改动历史
 2. git rebase -i 分支名 //交互的rebase制定分支, 可以用来合并多次的commit，留哪条就最踪提交那一条

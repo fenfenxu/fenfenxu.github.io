@@ -2,8 +2,6 @@
   layout: post
   title: Scala-Collection
 ---
-{{ page.title }}
-===================
 　
 ###    Scala Collections Tips
 

@@ -2,8 +2,6 @@
   layout: post
   title:  Shell数组
 ---
-{{ page.title }}
-===================
 
 ###bash数组：
 

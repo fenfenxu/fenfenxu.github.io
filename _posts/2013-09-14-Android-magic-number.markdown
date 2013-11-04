@@ -2,8 +2,6 @@
   layout: post
   title: Android magic number
 ---
-{{ page.title }}
-===================
  
 ### 1 "\*#06#"
 

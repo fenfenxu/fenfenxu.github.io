@@ -2,8 +2,6 @@
   layout: post
   title: 获取apk签名
 ---
-{{ page.title }}
-===================
 　
 ###  反射PackageParser类，此类在rom里存在，但是没有开放给开发者，需要反射调用。
 

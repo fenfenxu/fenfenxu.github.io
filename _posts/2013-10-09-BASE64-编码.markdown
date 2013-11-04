@@ -2,8 +2,6 @@
   layout: post
   title:  BASE64 
 ---
-{{ page.title }}
-===================
 
 ###BASE64
 
