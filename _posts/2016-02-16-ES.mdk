@@ -1,0 +1,145 @@
+## 如何配置一个ES集群
+
+So easy：启动多个ES实例，并在配置里配置起一个集群名，并保证你所有的实例在同一个网络，这样这些实例就是一个ES集群了
+
+How? 这是[ES缺省的集群发现方式](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery-zen.html#multicast)，当然也可以通过自定义配置干预发现方式。
+
+[how-to-set-up-es-cluster](http://stackoverflow.com/questions/16821101/how-to-set-up-es-cluster)
+
+举例：
+
+```
+bin/elasticsearch # 启动实例1
+bin/elasticsearch # 启动实例2
+bin/elasticsearch # 启动实例3
+
+这样三个示例在本地启动了3个rest api的http端口：9200~9202
+另有三个tcp端口用于用户集群同步：9300~9302
+
+```
+
+
+
+## OPS部署
+基于ops simple类型发布：http://office.ops.sankuai.com/releng/app/movie-es/log/
+
+## ES的数据导入方案
+
+### 1. [databus](http://wiki.sankuai.com/display/DEV/Databus)监控DB改动事件，通过ES-client主动写入
+
+
+- 优点：稳定可靠，不会对db照成额外压力。数据可以支持粗力度的回溯，方便回溯历史全量数据
+- 缺点：需要在databus框架上开发，一是有些开发工作，二是服务不由自己运维，会有些调试，排查问题的成本
+- 总结：即可用户全量导入数据，也可用于增量补充数据
+
+### 2. [jdbc插件](https://github.com/jprante/elasticsearch-jdbc) 
+
+- 优点：使用简单，仅仅需要一些配置工作，无太多开发成本
+- 缺点：对db有直接的读压力，而且订单表比较复杂需要union 64张表，配置会比较复杂；且依赖特定的表结构：表里有增量字段（modified等，且需要有索引）
+- 总结：适用于根据特定条件，导入数据，高效，可以依赖。作为1方案故障情况下，恢复故障期间数据的一个备选方案
+
+1. 导入电影: `./import.sh jdbc_movie_config.json`
+2. 导入影人: `./import.sh jdbc_celebrity_config.json`
+
+
+
+
+
+
+## ES的配置实践：
+
+### 1. 内存堆栈
+
+-xms,-xmx配置。可通过JAVA_OPS,ES_JAVA_OPS, ES_MIN_MEM ES_MAX_MEM三种方式配置。推荐的是ES_JAVA_OPS，并建议-xms,-xmx设置为相等的
+
+### 2. 文件描述符上限
+尽量将系统允许但进程持有的文件描述符上线设置足够大（>32k,64k）
+
+可通过如下方式检查你ES集群的设置：
+
+```
+curl localhost:9200/_nodes/process?pretty
+```
+
+### 3. 虚拟内存
+
+ES借助 hybrid mmapfs / niofs 目录来存储索引。系统默认给mmap的数量非常低，会导致OOM。
+
+```
+// 临时改动：
+sysctl -w vm.max_map_count=262144
+
+//永久修改：
+修改/etc/sysctl.conf里的vm.max_map_count配置项
+
+```
+
+
+### 4. 内存设置
+
+系统级别的swap，常常会讲进程内存不访问的页换出，swap操作严重影响ES稳定性，建议关闭
+
+1. 禁用swap：
+
+```
+sudo swapoff -a
+OR
+注释掉/etc/fstab 里跟swap相关的
+```
+
+2. 配置swappiness
+
+swappiness设置为0可以降低系统触发swap的倾向，但是紧急状况下，仍然会发生swap。
+
+对于kernel version>3.5-rcl 设置为0会导致直接OOM killer 直接kill进程，所以这时需要设置为1
+
+3. 配置mlockall
+
+在linux/unix上使用mlockall，可以将进程占用的内存，锁在系统内存里。防止被swap，config/elasticsearch.yml如下配置：
+
+```
+bootstrap.mlockall: true
+```
+
+这样查看mlockall的配置：
+
+```
+curl http://localhost:9200/_nodes/process?pretty
+```
+
+
+### ES配置
+
+1. ES配置目录&文件：ES_HOME/config。默认有 elasticsearch.yml，logging.yml两个配置文件。分别是ES配置，ES日志配置。配置文件路径通过-Des.config修改：
+
+
+```
+$elasticsearch -Des.config=/path/to/config/file
+```
+
+2. 配置格式:既可以是YAML也可以是JSON，json格式的如下：elasticsearch.json，logging.json
+
+3. 语法：配置可以通过${ENV}引用环境变量值。
+4. hack：${prompt.text} ${promt.secret} 可以在启动时，提示用户输入该配置项；${promt.secret}会想你命令行输入密码一样打马赛克
+
+
+### 索引配置
+
+ES索引有分片和复制集的概念。分片的数量是在索引创建的时候固定的。复制集可以提升整体ES集群查询吞吐量。水平扩展的也是指添加节点，扩展ES的复制集。
+
+
+ES索引Settings分为静态和动态配置，静态指在索引创建前设置，动态配置指可以在创建索引后动态调整，实时生效的配置
+
+
+#### [Mapping配置](./es-mapping.md)
+
+
+
+## 其他
+
+### The Despresed thrift,memcached
+
+ES是提供了thrift的api的，但是，经测试thrift相比较于HTTP并没有吞吐量上的提升，所以被废弃了。而memcached使用场景非常有限，且仅仅支持部分rest API，故也废弃了。详见：
+[Deprecate thrift and memcached transports ](https://github.com/elastic/elasticsearch/issues/10166)
+
+
