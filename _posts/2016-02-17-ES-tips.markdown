@@ -1,0 +1,124 @@
+---     
+  layout: post
+  title: ES-Tips
+---
+
+
+1. _all field:
+
+    用空格连接所有字段，这字段是被analyzed和索引了，但是没有被存储。可以用来检索，但是结果返回里不会有这个值。默认是开启的，
+
+2. 修改mapping：
+    
+    对于已经存在的索引数据，需要重新build索引，才能生效。有没有online change mapping的成熟方案？
+    
+3. 禁止自动创建索引：
+    
+    action.auto_create_index: false
+
+4. Index VS Type：
+    
+    Index对应lucene的一个索引，不同type的doc在一个索引中，仅仅是用_type标记来区别。
+    对于，同一个index里的多个type中的field，如果fieldName相同，那么他们的mapping配置是一致的。也即，在同一个index中的多个type的mapping设置，同名的field mapping需要一致。
+    
+5. 如何不当机升级ES索引mapping
+    
+    虽然，ES索引支持动态扩展字段。但是，不允许改变原有字段。如有需要变更一个字段的类型，又不停机可以借组alias来实现，具体步骤：
+    
+    1. 给你的索引加上版本号后缀trade_v1，并添加别名。查询，构建索引都通过别名来操作；
+    2. 构建新索引trade_v2，并将老索引trade_v1数据写入到新索引trade_v2里；
+    3. 切换alias将trade指向新索引trade_v2；
+    
+    ```json
+    POST /_aliases
+{
+    "actions": [
+        { "remove": { "index": "trade_v1", "alias": "trade" }},
+        { "add":    { "index": "trade_v2", "alias": "trade" }}
+    ]
+}
+    ```
+    
+6. 禁止自动添加字段：
+    
+    自动添加Index字段，本来是ES的一个很好的特性。但是副作用很大，比如在doc中动态添加了一个pay_money字段，索引自动创建的字段其类型定义取决于第一条记录的取值。如果是2，那么字段类型为long。但是随后的记录如果是18.8f，就会出现这条doc写入索引失败。
+    
+7. 批量删除索引：
+
+```bash
+curl http://10.4.240.243:9200/_cat/indices | awk  '{print $3}'| awk  '{print "curl -XDELETE http://10.4.240.243:9200/"$1}'  | grep -v movie_service
+```
+
+
+8. 修改refresh_interval:**切忌带着单位，不带s，默认为ms
+**
+
+ ```bash
+  curl -X PUT 'http://localhost:9200/trade/_settings' -d '{"index" : {"refresh_interval" : "30s"}}'
+ ```
+ 
+
+9. post_filter: **性能比较差，慢且让ES cpu负载很高**
+
+10. solr vs es:
+
+```
+[2015-12-13 16:49:23.174][Thread-21][ERROR][c.m.s.m.m.e.s.OrderManagerViaES]: solrRequestStats: handlerStart:Sat Dec 12 23:16:22 GMT+08:00 2015;
+requests:1009476;
+avgRequestsPerSecond:15.977510438093416;
+1minRateReqsPerSecond:2.133420957192833E-6;
+5minRateReqsPerSecond:0.274768333892912;
+15minRateReqsPerSecond:3.9866107344290094;
+avgTimePerRequest:14.75876566589795;
+medianRequestTime:14.534086;
+75thPcRequestTime:14.86534975;
+95thPcRequestTime:16.110170299999997;
+99thPcRequestTime:31.695918180000007;
+999thPcRequestTime:105.91795229000019
+[2015-12-13 16:49:23.175][Thread-21][ERROR][c.m.s.m.m.e.s.OrderManagerViaES]: esRequestStats: handlerStart:Sat Dec 12 23:16:22 GMT+08:00 2015;
+requests:1009476;
+avgRequestsPerSecond:15.977510339855879;
+1minRateReqsPerSecond:2.1332361727891913E-6;
+5minRateReqsPerSecond:0.2747679571838664;
+15minRateReqsPerSecond:3.9897989477639983;
+avgTimePerRequest:8.07337439806989;
+medianRequestTime:5.4012655;
+75thPcRequestTime:6.5813992500000005;
+95thPcRequestTime:20.244136949999998;
+99thPcRequestTime:55.488591910000004;
+999thPcRequestTime:209.82751302100002
+
+
+
+
+[2015-12-13 16:50:48.278][Thread-21][ERROR][c.m.s.m.m.e.s.OrderManagerViaES]: solrRequestStats: handlerStart:Sat Dec 12 22:00:40 GMT+08:00 2015;
+requests:661427;
+errors:0;
+timeouts:0;
+totalTime:9697512.202647;
+avgRequestsPerSecond:9.754425327843586;
+1minRateReqsPerSecond:6.177028838312688E-7;
+5minRateReqsPerSecond:0.24444181093507789;
+15minRateReqsPerSecond:3.8749190353892877;
+avgTimePerRequest:14.661500366097846;
+medianRequestTime:14.550835;
+75thPcRequestTime:14.87783175;
+95thPcRequestTime:16.0424989;
+99thPcRequestTime:30.319194800000016;
+999thPcRequestTime:90.22102101000006
+[2015-12-13 16:50:48.279][Thread-21][ERROR][c.m.s.m.m.e.s.OrderManagerViaES]:  esRequestStats: handlerStart:Sat Dec 12 22:00:40 GMT+08:00 2015;
+requests:661427;
+errors:0;
+timeouts:0;
+totalTime:5114432.679413;
+avgRequestsPerSecond:9.754425256314278;
+1minRateReqsPerSecond:6.176981624916773E-7;
+5minRateReqsPerSecond:0.24409183053913022;
+15minRateReqsPerSecond:3.863538591652748;
+avgTimePerRequest:7.732421989747924;
+medianRequestTime:5.330657;
+75thPcRequestTime:6.468132000000001;
+95thPcRequestTime:20.375449499999988;
+99thPcRequestTime:47.73561223000005;
+999thPcRequestTime:195.6147407380004
+```
