@@ -1,1 +1,6 @@
 baseurl: /
+title: xu
+description: my github page
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-slate
